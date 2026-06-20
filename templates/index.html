@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Database Assisted House Price Predictor</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, sans-serif;
+        }
+
+        body{
+            background:#f4f6f9;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+        }
+
+        .container{
+            width:500px;
+            background:white;
+            padding:30px;
+            border-radius:15px;
+            box-shadow:0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        h1{
+            text-align:center;
+            margin-bottom:10px;
+            color:#333;
+        }
+
+        .subtitle{
+            text-align:center;
+            color:gray;
+            margin-bottom:25px;
+        }
+
+        .form-group{
+            margin-bottom:15px;
+        }
+
+        label{
+            display:block;
+            margin-bottom:5px;
+            font-weight:bold;
+        }
+
+        input{
+            width:100%;
+            padding:10px;
+            border:1px solid #ccc;
+            border-radius:8px;
+        }
+
+        button{
+            width:100%;
+            padding:12px;
+            background:#007bff;
+            color:white;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            font-size:16px;
+        }
+
+        button:hover{
+            background:#0056b3;
+        }
+
+        .result{
+            margin-top:20px;
+            padding:15px;
+            background:#f8f9fa;
+            border-radius:10px;
+            display:none;
+        }
+
+        .price{
+            font-size:24px;
+            font-weight:bold;
+            color:green;
+        }
+
+        .source{
+            color:#555;
+            margin-top:5px;
+        }
+
+        .loading{
+            text-align:center;
+            color:#007bff;
+            margin-top:10px;
+            display:none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>🏠 House Price Predictor</h1>
+
+    <p class="subtitle">
+        Database Assisted ML Prediction System
+    </p>
+
+    <form id="predictionForm">
+
+        <div class="form-group">
+            <label>Area (sqft)</label>
+            <input type="number" id="area" required>
+        </div>
+
+        <div class="form-group">
+            <label>Bedrooms</label>
+            <input type="number" id="bedrooms" required>
+        </div>
+
+        <div class="form-group">
+            <label>Bathrooms</label>
+            <input type="number" id="bathrooms" required>
+        </div>
+
+        <div class="form-group">
+            <label>House Age</label>
+            <input type="number" id="age" required>
+        </div>
+
+        <div class="form-group">
+            <label>Location Code</label>
+            <input type="number" id="location" required>
+        </div>
+
+        <button type="submit">
+            Predict Price
+        </button>
+
+    </form>
+
+    <div class="loading" id="loading">
+        Predicting...
+    </div>
+
+    <div class="result" id="result">
+
+        <div class="price" id="price"></div>
+
+        <div class="source" id="source"></div>
+
+    </div>
+
+</div>
+
+<script>
+
+document.getElementById("predictionForm")
+.addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    document.getElementById("loading").style.display = "block";
+    document.getElementById("result").style.display = "none";
+
+    const data = {
+
+        area: parseFloat(
+            document.getElementById("area").value
+        ),
+
+        bedrooms: parseInt(
+            document.getElementById("bedrooms").value
+        ),
+
+        bathrooms: parseInt(
+            document.getElementById("bathrooms").value
+        ),
+
+        age: parseInt(
+            document.getElementById("age").value
+        ),
+
+        location: parseInt(
+            document.getElementById("location").value
+        )
+    };
+
+    try{
+
+        const response = await fetch("/predict",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        document.getElementById("price").innerHTML =
+            "₹ " + Number(result.price).toLocaleString();
+
+        document.getElementById("source").innerHTML =
+            "Source : " + result.source;
+
+        document.getElementById("result").style.display = "block";
+
+    }
+    catch(error){
+
+        alert("Error : " + error);
+
+    }
+
+    document.getElementById("loading").style.display = "none";
+
+});
+
+</script>
+
+</body>
+</html>
